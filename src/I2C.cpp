@@ -30,8 +30,8 @@ bool I2C::can_ack() const {
 
   // Try to read a byte to check if device acknowledges
   uint8_t dummy;
-  esp_err_t ret =
-      i2c_master_receive(g_dev_handle, &dummy, 1, pdMS_TO_TICKS(100));
+  esp_err_t ret = i2c_master_receive(g_dev_handle, &dummy, 1, -1);
+  // TODO: use i2c_master_probe
 
   return ret == ESP_OK;
 }
@@ -48,8 +48,8 @@ int I2C::read_register(uint8_t reg_addr, uint8_t length) const {
   }
 
   uint8_t data = 0;
-  esp_err_t ret = i2c_master_transmit_receive(g_dev_handle, &reg_addr, 1, &data,
-                                              1, pdMS_TO_TICKS(100));
+  esp_err_t ret =
+      i2c_master_transmit_receive(g_dev_handle, &reg_addr, 1, &data, 1, -1);
 
   if (ret != ESP_OK) {
     ESP_LOGD(TAG, "Failed to read register 0x%02X: %s", reg_addr,
@@ -67,8 +67,7 @@ int I2C::write_register(uint8_t reg_addr, uint8_t reg_value) const {
   }
 
   uint8_t write_buf[2] = {reg_addr, reg_value};
-  esp_err_t ret =
-      i2c_master_transmit(g_dev_handle, write_buf, 2, pdMS_TO_TICKS(100));
+  esp_err_t ret = i2c_master_transmit(g_dev_handle, write_buf, 2, -1);
 
   if (ret != ESP_OK) {
     ESP_LOGD(TAG, "Failed to write register 0x%02X: %s", reg_addr,
